@@ -15,6 +15,7 @@ function formatarDataBR(iso){
   const [a,m,d]=iso.split("-");
   return d+"/"+m+"/"+a;
 }
+
 function renderChips(containerId, lista){
   const c = document.getElementById(containerId);
   c.innerHTML="";
@@ -29,6 +30,7 @@ function renderChips(containerId, lista){
     c.appendChild(s);
   });
 }
+
 function adicionarData(inputId, lista, chipsId){
   const el=document.getElementById(inputId);
   const v=(el.value||"").trim();
@@ -41,8 +43,10 @@ function adicionarData(inputId, lista, chipsId){
   el.value="";
   el.focus();
 }
+
 document.getElementById("addPermuta").addEventListener("click", ()=> adicionarData("dataPermuta", datasPermuta, "chipsPermuta"));
 document.getElementById("addPagamento").addEventListener("click", ()=> adicionarData("dataPagamento", datasPagamento, "chipsPagamento"));
+
 ["dataPermuta","dataPagamento"].forEach(id=>{
   document.getElementById(id).addEventListener("keydown", e=>{
     if(e.key==="Enter"){
@@ -76,6 +80,7 @@ function desfragmentarDocx(xml){
     .replace(/<\/w:t>\s*<w:t[^>]*>/g, "")
     .replace(/<\/w:t>\s*<\/w:r>\s*<w:r[^>]*>\s*(?:<w:rPr>[\s\S]*?<\/w:rPr>\s*)?<w:t[^>]*>/g, "");
 }
+
 function inserirAposRotulo(xml, rotulo, valor){
   const rot = rotulo.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
   const esp = "(?:[ \\u00A0]*)";
@@ -112,18 +117,14 @@ async function gerarDOCX(){
   let xml = zip.file(path).asText();
   xml = desfragmentarDocx(xml);
 
-  // Campos
+  // Campos (devem existir exatamente no .docx)
   xml = inserirAposRotulo(xml, "PM SUBSTITUÍDO:", pmSubstituido);
   xml = inserirAposRotulo(xml, "PM SUBSTITUTO:",  pmSubstituto);
   xml = inserirAposRotulo(xml, "Data do serviço permutado:",    datasPermutaStr);
   xml = inserirAposRotulo(xml, "Data do pagamento do serviço:", datasPagtoStr);
 
-  // >>> CARGA/Total de horas — rótulo com bolinha
+  // Carga total (rótulo com bolinha no modelo)
   xml = inserirAposRotulo(xml, "• Total de horas trabalhadas:", carga);
-  // (Opcional) variações comuns — descomente se seu template alternar:
-  // xml = inserirAposRotulo(xml, "• Total de horas trabalhadas :", carga);
-  // xml = inserirAposRotulo(xml, "Total de horas trabalhadas:", carga);
-  // xml = inserirAposRotulo(xml, "Total de horas trabalhadas :", carga);
 
   zip.file(path, xml);
   const out = zip.generate({
@@ -134,7 +135,7 @@ async function gerarDOCX(){
   saveAs(out, `Permuta_de_Servico_${primeiraData || "preenchida"}.docx`);
 }
 
-// ====== PDF ======
+// ====== PDF (abre nova janela e chama print) ======
 function gerarPDF(){
   if(!validarCampos()){
     alert("Por favor, preencha os campos e adicione ao menos uma data em cada lista.");
