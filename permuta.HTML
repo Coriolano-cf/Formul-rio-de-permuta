@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Formulário de Permuta de Serviço</title>
+
+  <style>
+    :root{
+      --azul-escuro:#0f2747; --cinza-fundo:#f6f7fb; --branco:#fff; --borda:#e5e7eb;
+      --txt:#111827; --primaria:#3b69c6; --primaria-hover:#2f56a4;
+      --sombra:0 10px 25px rgba(16,24,40,.08); --radius:14px; --danger:#ef4444;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Arial,sans-serif;color:#111827;background:var(--cinza-fundo)}
+    .topbar{background:var(--azul-escuro);color:#e8eef9;padding:14px 16px}
+    .topbar-inner{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:120px 1fr;align-items:center;gap:16px}
+    .logo-area{display:flex;align-items:center;justify-content:center;height:80px}
+    .logo{height:64px;width:auto;display:block}
+    .org-title{text-align:center;font-weight:700;letter-spacing:.2px;line-height:1.25}
+    .org-title .linha1{font-size:17px}
+    .org-title .linha2{display:block;font-size:12px;font-weight:500;opacity:.95;margin-top:6px}
+
+    .container{max-width:1100px;margin:22px auto 24px;padding:0 16px}
+    h1{text-align:center;font-size:26px;margin:6px 0 22px;color:#0f172a;letter-spacing:.2px}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+    @media (max-width:860px){ .topbar-inner{grid-template-columns:1fr} .grid{grid-template-columns:1fr} .logo{height:56px} }
+    .card{background:#fff;border:1px solid #e5e7eb;border-radius:var(--radius);box-shadow:var(--sombra);padding:16px 16px 18px}
+    label{display:block;font-size:14px;color:#0f172a;margin:0 0 8px;font-weight:600}
+    input[type="text"], input[type="date"], select{
+      width:100%;background:#fff;border:1px solid #d8dde6;border-radius:10px;
+      padding:12px 14px;font-size:16px;color:#111827;outline:none;transition:.15s border-color ease;
+    }
+    input:focus, select:focus{border-color:#94b0ea; box-shadow:0 0 0 3px rgba(59,105,198,.12)}
+    .date-row{display:flex;gap:10px;align-items:center}
+    .btn-add, .btn{
+      appearance:none;border:0;background:var(--primaria);color:#fff;padding:10px 16px;
+      font-size:15px;font-weight:700;border-radius:10px;cursor:pointer;
+      transition:background .15s ease, transform .03s ease;white-space:nowrap;
+      box-shadow:0 6px 16px rgba(59,105,198,.25)
+    }
+    .btn-add:hover, .btn:hover{background:var(--primaria-hover)}
+    .btn:active{transform:translateY(1px)}
+    .btn.secondary{background:#e5e7eb;color:#111827;box-shadow:none}
+    .btn.secondary:hover{background:#d6dae0}
+    .chips{margin-top:10px;display:flex;flex-wrap:wrap;gap:8px}
+    .chip{display:inline-flex;align-items:center;gap:8px;background:#eef2ff;border:1px solid #c7d2fe;color:#1f2a59;padding:6px 10px;border-radius:999px;font-size:14px}
+    .chip button{border:0;background:transparent;color:#1f2a59;font-weight:700;cursor:pointer;padding:0 4px;line-height:1}
+    .error{border-color:var(--danger) !important; box-shadow:0 0 0 3px rgba(239,68,68,.12) !important}
+    .actions{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin:0}
+    .footer{text-align:center;color:#9aa3af;font-size:13px;margin:16px 0 26px}
+  </style>
+
+  <!-- libs .docx -->
+  <script src="https://unpkg.com/pizzip@3.1.4/dist/pizzip.min.js"></script>
+  <script src="https://unpkg.com/pizzip@3.1.4/dist/pizzip-utils.min.js"></script>
+  <script src="https://unpkg.com/file-saver@2.0.5/dist/FileSaver.min.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="logo-area"><img src="img/logo-pm.png" alt="Logo PMMA" class="logo"></div>
+      <div class="org-title">
+        <div class="linha1">Polícia Militar do Maranhão — 10º BPM - 2ª CIA - 4º GPPM - Turiaçu-MA</div>
+        <span class="linha2">ESTADO DO MARANHÃO · SECRETARIA DE SEGURANÇA PÚBLICA</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <h1>Formulário de Permuta de Serviço</h1>
+
+    <form id="permutaForm" autocomplete="off">
+      <!-- 1) Nomes -->
+      <div class="grid" style="margin-top:18px;">
+        <div class="card">
+          <label for="pmSubstituido">PM Substituído</label>
+          <input id="pmSubstituido" name="pmSubstituido" type="text" list="listaPMs" required />
+        </div>
+        <div class="card">
+          <label for="pmSubstituto">PM Substituto</label>
+          <input id="pmSubstituto" name="pmSubstituto" type="text" list="listaPMs" required />
+        </div>
+      </div>
+
+      <!-- 2) Datas -->
+      <div class="grid" style="margin-top:18px;">
+        <div class="card">
+          <label for="dataPermuta">Datas da permuta de serviço</label>
+          <div class="date-row">
+            <input id="dataPermuta" type="date" />
+            <button type="button" class="btn-add" id="addPermuta">Adicionar data</button>
+          </div>
+          <div id="chipsPermuta" class="chips" aria-live="polite"></div>
+        </div>
+
+        <div class="card">
+          <label for="dataPagamento">Datas do pagamento da permuta</label>
+          <div class="date-row">
+            <input id="dataPagamento" type="date" />
+            <button type="button" class="btn-add" id="addPagamento">Adicionar data</button>
+          </div>
+          <div id="chipsPagamento" class="chips" aria-live="polite"></div>
+        </div>
+      </div>
+
+      <!-- 3) Carga Horária + Ações -->
+      <div class="grid" style="margin-top:18px;">
+        <div class="card">
+          <label for="carga">Carga Horária</label>
+          <select id="carga">
+            <option>24 Horas</option>
+            <option>48 Horas</option>
+            <option selected>72 Horas</option>
+          </select>
+        </div>
+        <div class="card">
+          <label>Ações</label>
+          <div class="actions" style="margin-top:8px">
+            <button type="button" class="btn" id="btnGerarDocx">Gerar DOCX</button>
+            <button type="button" class="btn" id="btnGerarPDF">Gerar PDF</button>
+            <button type="button" class="btn secondary" id="btnLimparTudo">Limpar formulário</button>
+          </div>
+        </div>
+      </div>
+    </form>
+
+    <div class="footer">Desenvolvido por Coriolano</div>
+  </main>
+
+  <datalist id="listaPMs">
+    <option value="Cb Pm 626/14 Coriolano"></option>
+    <option value="Sd Pm 473/16 André"></option>
+    <option value="Sd Pm 408/18 Ribeiro"></option>
+    <option value="Sd Pm 424/18 Rodrigues"></option>
+    <option value="Sd Pm 885/18 Albert"></option>
+    <option value="Sd Pm 502/22 Sales"></option>
+    <option value="SD PM 572/22 Theodosio"></option>
+    <option value="Sd Pm 457/24 Eduardo Silva"></option>
+  </datalist>
+
+  <script src="app.js"></script>
+</body>
+</html>
